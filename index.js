@@ -68,7 +68,7 @@ class Board {
                     if (this.kickOut() !== 1) {
                         this.showBoard();
                         this.iniPlayerClick();
-                        this.judgeWin();
+                        setTimeout(this.judgeWin.bind(this),100);
                     }
                 })
             }
@@ -98,8 +98,9 @@ class Board {
     //     })
     //     return j;
     // }
-    AIwin(allMove) {
+    AIwin() {
         let i, j;
+        let allMove = this.getAllMove(-1);
         for (i = 0; i < allMove.length; i++) {
             for (j = 1; j < allMove[i].length; j++) {
                 this.chooseMove(allMove[i][0], allMove[i][j], -1)
@@ -107,21 +108,44 @@ class Board {
                     return 1;
                 } else {
                     this.chooseMove(allMove[i][j], allMove[i][0], -1);
+                    return 0;
                 }
             }
         }
     }
     AImove() {
-        let allMove = [];
-        this.cheeseBoard.some((element, i) => {
-            let avalibeCheese = [i];
-            if (element === -1) {
-                avalibeCheese = this.getAvaCheese(i);
+        if (this.AIwin() !== 1) {
+            if(this.AIdontLost()!==1)
+            {
+                this.AIrandomMove();
             }
-            if (avalibeCheese.length !== 1) {
-                allMove.push(avalibeCheese);
+        }
+    }
+    AIdontLost() {
+        let i, j, dangerKey;
+        let allMove = this.getAllMove(1);
+        for (i = 0; i < allMove.length; i++) {
+            for (j = 1; j < allMove[i].length; j++) {
+                this.chooseMove(allMove[i][0], allMove[i][j], 1)
+                if (this.judgeWin(1) === 1) {
+                    dangerKey = allMove[i][j];
+                }
+                this.chooseMove(allMove[i][j], allMove[i][0], 1);
             }
-        })
+        }
+        let allMove2=this.getAllMove(-1);
+        for (i = 0; i < allMove2.length; i++) {
+            for (j = 1; j < allMove2[i].length; j++) {
+                if(allMove2[i][j]===dangerKey){
+                    this.chooseMove(allMove2[i][0],allMove2[i][j],-1);
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+    AIrandomMove() {
+        let allMove = this.getAllMove(-1);
         if (allMove.length === 0) {
             return;
         } else if (this.AIwin(allMove)) {
@@ -130,6 +154,19 @@ class Board {
         let random = Math.floor(Math.random() * (allMove.length));
         let random2 = Math.floor(Math.random() * (allMove[random].length - 1)) + 1;
         this.chooseMove(allMove[random][0], allMove[random][random2], -1);
+    }
+    getAllMove(who) {
+        let allMove = [];
+        this.cheeseBoard.some((element, i) => {
+            let avalibeCheese = [who];
+            if (element === who) {
+                avalibeCheese = this.getAvaCheese(i);
+            }
+            if (avalibeCheese.length !== 1) {
+                allMove.push(avalibeCheese);
+            }
+        })
+        return allMove;
     }
     getAvaCheese(i) {
         let avalibeCheese = [i];
