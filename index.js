@@ -1,4 +1,6 @@
 let block = document.querySelectorAll(".tic");
+const PLAYER =1;
+const AI=-1;
 class Board {
     constructor(cheeseArray) {
         this.cheeseBoard = cheeseArray;
@@ -63,7 +65,7 @@ class Board {
                 block[element].firstChild.addEventListener("click", () => {
                     this.prepreCheeseBoard = this.preCheeseBoard && this.preCheeseBoard.slice();
                     this.preCheeseBoard = this.cheeseBoard.slice();
-                    this.chooseMove(avalibeCheese[0], element, 1);
+                    this.chooseMove(avalibeCheese[0], element, PLAYER);
                     this.AImove();
                     if (this.kickOut() !== 1) {
                         this.showBoard();
@@ -100,14 +102,14 @@ class Board {
     // }
     AIwin() {
         let i, j;
-        let allMove = this.getAllMove(-1);
+        let allMove = this.getAllMove(AI);
         for (i = 0; i < allMove.length; i++) {
             for (j = 1; j < allMove[i].length; j++) {
-                this.chooseMove(allMove[i][0], allMove[i][j], -1)
+                this.chooseMove(allMove[i][0], allMove[i][j], AI)
                 if (this.judgeWin(1) === -1) {
                     return 1;
                 } else {
-                    this.chooseMove(allMove[i][j], allMove[i][0], -1);
+                    this.chooseMove(allMove[i][j], allMove[i][0], AI);
                     return 0;
                 }
             }
@@ -123,21 +125,21 @@ class Board {
     }
     AIdontLost() {
         let i, j, dangerKey;
-        let allMove = this.getAllMove(1);
+        let allMove = this.getAllMove(PLAYER);
         for (i = 0; i < allMove.length; i++) {
             for (j = 1; j < allMove[i].length; j++) {
-                this.chooseMove(allMove[i][0], allMove[i][j], 1)
+                this.chooseMove(allMove[i][0], allMove[i][j], PLAYER)
                 if (this.judgeWin(1) === 1) {
                     dangerKey = allMove[i][j];
                 }
-                this.chooseMove(allMove[i][j], allMove[i][0], 1);
+                this.chooseMove(allMove[i][j], allMove[i][0], PLAYER);
             }
         }
-        let allMove2=this.getAllMove(-1);
+        let allMove2=this.getAllMove(AI);
         for (i = 0; i < allMove2.length; i++) {
             for (j = 1; j < allMove2[i].length; j++) {
                 if(allMove2[i][j]===dangerKey){
-                    this.chooseMove(allMove2[i][0],allMove2[i][j],-1);
+                    this.chooseMove(allMove2[i][0],allMove2[i][j],AI);
                     return 1;
                 }
             }
@@ -145,15 +147,31 @@ class Board {
         return 0;
     }
     AIrandomMove() {
-        let allMove = this.getAllMove(-1);
+        function randomMove(allMove){
+            if (allMove.length === 0) {
+                return -1;
+            }
+            let random = Math.floor(Math.random() * (allMove.length));
+            let random2 = Math.floor(Math.random() * (allMove[random].length - 1)) + 1;
+            myBoard.chooseMove(allMove[random][0], allMove[random][random2], AI);
+            return 0;
+        }
+        let wiseMove=[],stupidMove=[];
+        let allMove = this.getAllMove(AI);
         if (allMove.length === 0) {
             return;
-        } else if (this.AIwin(allMove)) {
-            return;
         }
-        let random = Math.floor(Math.random() * (allMove.length));
-        let random2 = Math.floor(Math.random() * (allMove[random].length - 1)) + 1;
-        this.chooseMove(allMove[random][0], allMove[random][random2], -1);
+        allMove.forEach((element)=>{
+            if(element[0]===1||element[0]===3||element[0]===5||element[0]===7){
+                wiseMove.push(element);
+            }else{
+                stupidMove.push(element);
+            }
+        });
+        if(randomMove(wiseMove)===-1){
+            randomMove(stupidMove);
+        }
+        return 0;
     }
     getAllMove(who) {
         let allMove = [];
@@ -233,7 +251,7 @@ class Board {
                     this.showBoard();
                     let random = Math.floor(Math.random() * (allMove.length));
                     let random2 = Math.floor(Math.random() * (allMove[random].length - 1)) + 1;
-                    this.chooseMove(allMove[random][0], allMove[random][random2], 1);
+                    this.chooseMove(allMove[random][0], allMove[random][random2], PLAYER);
                     alert("You have been kick out!");
                     setTimeout(this.showBoard.bind(this), 300);
                     setTimeout(this.iniPlayerClick.bind(this), 310);
