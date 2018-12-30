@@ -100,6 +100,14 @@ class Board {
     //     })
     //     return j;
     // }
+    AImove() {
+        if (this.AIwin() !== 1) {
+            if(this.AIdontLost()!==1)
+            {
+                this.AIrandomMove();
+            }
+        }
+    }
     AIwin() {
         let i, j;
         let allMove = this.getAllMove(AI);
@@ -114,15 +122,7 @@ class Board {
                 }
             }
         }
-    }
-    AImove() {
-        if (this.AIwin() !== 1) {
-            if(this.AIdontLost()!==1)
-            {
-                this.AIrandomMove();
-            }
-        }
-    }
+    } 
     AIdontLost() {
         let i, j, dangerKey;
         let allMove = this.getAllMove(PLAYER);
